@@ -1,0 +1,25 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container">
+    <div class="auth-caixa cartao">
+      <h1>Criar conta</h1>
+      <p class="texto-suave">Acompanhe suas solicitações e pedidos em um só lugar.</p>
+      <%- include('../partials/flash') %>
+
+      <form action="/cadastro" method="post">
+        <div class="campo"><label for="nome">Nome *</label><input id="nome" name="nome" value="<%= dados.nome || '' %>" required></div>
+        <div class="campo"><label for="email">E-mail *</label><input id="email" name="email" type="email" value="<%= dados.email || '' %>" required></div>
+        <div class="campo"><label for="telefone">Telefone</label><input id="telefone" name="telefone" type="tel" value="<%= dados.telefone || '' %>"></div>
+        <div class="campo"><label for="endereco">Endereço</label><input id="endereco" name="endereco" value="<%= dados.endereco || '' %>"></div>
+        <div class="linha-campos">
+          <div class="campo"><label for="senha">Senha *</label><input id="senha" name="senha" type="password" minlength="6" required></div>
+          <div class="campo"><label for="confirmar_senha">Confirmar *</label><input id="confirmar_senha" name="confirmar_senha" type="password" minlength="6" required></div>
+        </div>
+        <button class="btn btn-bloco" type="submit">Criar conta</button>
+      </form>
+
+      <p class="centro">Já tem conta? <a href="/login">Entrar</a></p>
+    </div>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>

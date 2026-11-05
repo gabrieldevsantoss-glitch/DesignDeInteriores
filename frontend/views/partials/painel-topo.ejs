@@ -1,0 +1,37 @@
+<%#
+  Estrutura do painel administrativo.
+  Desktop: menu lateral. Celular: topo "PAI" + barra inferior (esboco do Figma).
+%>
+<%- include('head') %>
+<% const ehAdmin = usuario.perfil === 'admin';
+   const ativo = (rota) => (rota === '/painel' ? caminho === '/' : caminho.startsWith(rota.replace('/painel', ''))) ? 'ativo' : '';
+   const links = [
+     { rota: '/painel', rotulo: 'Início', icone: 'casa' },
+     { rota: '/painel/solicitacoes', rotulo: 'Solicitações', icone: 'lista' },
+     { rota: '/painel/pedidos', rotulo: 'Pedidos', icone: 'sacola' },
+     { rota: '/painel/clientes', rotulo: 'Clientes', icone: 'pessoas' },
+     { rota: '/painel/produtos', rotulo: 'Produtos', icone: 'caixa' },
+   ];
+   if (ehAdmin) {
+     links.push({ rota: '/painel/estoque', rotulo: 'Estoque', icone: 'estoque' });
+     links.push({ rota: '/painel/funcionarios', rotulo: 'Funcionários', icone: 'engrenagem' });
+   } %>
+<div class="painel">
+  <aside class="painel-lateral">
+    <a href="/painel" class="logo">Casa&amp;Estilo<span>painel</span></a>
+    <nav class="painel-nav">
+      <% links.forEach((l) => { %>
+        <a href="<%= l.rota %>" class="<%= ativo(l.rota) %>"><%- include('icone', { nome: l.icone }) %><%= l.rotulo %></a>
+      <% }) %>
+    </nav>
+    <div class="painel-usuario">
+      <strong><%= usuario.nome %></strong>
+      <%= PERFIS[usuario.perfil] %>
+      <form action="/logout" method="post"><button class="btn btn-claro btn-pequeno">Sair</button></form>
+    </div>
+  </aside>
+
+  <div>
+    <div class="painel-topo">PAINEL</div>
+    <main class="painel-conteudo">
+      <%- include('flash') %>

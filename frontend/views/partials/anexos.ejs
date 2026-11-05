@@ -1,0 +1,17 @@
+<%# Galeria de anexos da solicitacao (links temporarios do Storage) %>
+<% if (!anexos.length) { %>
+  <p class="texto-suave">Nenhum arquivo enviado.</p>
+<% } else { %>
+  <div class="anexos">
+    <% anexos.forEach((a) => { %>
+      <a href="<%= a.url %>" target="_blank" rel="noopener" title="<%= a.nome_original %>">
+        <% if (a.ehImagem) { %>
+          <img src="<%= a.url %>" alt="<%= a.nome_original %>" loading="lazy">
+        <% } else { %>
+          <div class="anexo-pdf">PDF</div>
+        <% } %>
+        <%= TIPOS_ANEXO[a.tipo] %>
+      </a>
+    <% }) %>
+  </div>
+<% } %>

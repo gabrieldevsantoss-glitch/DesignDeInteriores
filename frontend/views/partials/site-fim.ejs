@@ -1,0 +1,32 @@
+<%#
+  Rodape do site publico.
+  Opcional: scriptsExtras (lista de URLs) para scripts de uma pagina especifica.
+%>
+<footer class="site-footer">
+  <div class="container rodape-grade">
+    <div>
+      <a href="/" class="logo">Casa&amp;Estilo<span>design de interiores</span></a>
+      <p>Móveis planejados e projetos de interiores sob medida, do rascunho à instalação.</p>
+    </div>
+    <div>
+      <strong>Navegação</strong>
+      <a href="/#produtos">Produtos</a>
+      <a href="/#servicos">Serviços</a>
+      <a href="/#sobre">Sobre nós</a>
+      <a href="/#contato">Contato</a>
+    </div>
+    <div>
+      <strong>Atendimento</strong>
+      <span>(11) 99999-0000</span>
+      <span>contato@casaestilo.com.br</span>
+      <a href="/login">Área do cliente / equipe</a>
+    </div>
+  </div>
+  <div class="container rodape-base">&copy; <%= new Date().getFullYear() %> Casa&amp;Estilo. Todos os direitos reservados.</div>
+</footer>
+<script src="/js/site.js"></script>
+<% if (typeof scriptsExtras !== 'undefined') { scriptsExtras.forEach((src) => { %>
+  <script src="<%= src %>"></script>
+<% }) } %>
+</body>
+</html>

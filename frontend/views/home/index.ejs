@@ -1,0 +1,219 @@
+<%- include('../partials/site-topo', { classeBody: 'pagina-inicial' }) %>
+
+<%#
+  Fotos ilustrativas (Unsplash, uso livre).
+  Para usar fotos proprias, coloque os arquivos em frontend/assets e troque os links.
+%>
+<% const foto = (id, largura = 1600) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${largura}&q=80`;
+   // Fotos do card de produto conforme a categoria (alterna para nao repetir)
+   const fotosCategoria = {
+     Cozinha: ['1556911220-bff31c812dba', '1484154218962-a197022b5858'],
+     Sala: ['1586023492125-27b2c045efd7', '1522708323590-d24dbb6b0267'],
+     Quarto: ['1505693416388-ac5ce068fe85', '1616594039964-ae9021a400a0'],
+     'Escritório': ['1593062096033-9a26b09da705'],
+     Projeto: ['1600210492486-724fe5c67fb0'],
+     'Instalação': ['1565183928294-7063f23ce0f8'],
+   };
+   const fotoProduto = (p) => {
+     const lista = fotosCategoria[p.categoria] || ['1560448204-e02f11c3d0e2'];
+     return lista[p.id % lista.length];
+   };
+   // Comodos do slider (secao "servicos" do Figma)
+   const comodos = [
+     { titulo: 'Cozinhas planejadas', texto: 'Armários sob medida, bancadas e iluminação pensados para o dia a dia.', foto: '1565183928294-7063f23ce0f8' },
+     { titulo: 'Salas de estar', texto: 'Painéis, racks e estantes que unem conforto e organização.', foto: '1618221195710-dd6b41faaea6' },
+     { titulo: 'Quartos e closets', texto: 'Guarda-roupas e cabeceiras com aproveitamento total do espaço.', foto: '1616594039964-ae9021a400a0' },
+     { titulo: 'Banheiros', texto: 'Gabinetes e nichos resistentes à umidade, com acabamento impecável.', foto: '1552321554-5fefe8c9ef14' },
+     { titulo: 'Home office', texto: 'Ambientes de trabalho funcionais e bonitos dentro de casa.', foto: '1593062096033-9a26b09da705' },
+     { titulo: 'Área externa', texto: 'Varandas e áreas gourmet planejadas para receber bem.', foto: '1600585154340-be6161a56a0c' },
+   ]; %>
+
+<%# ---------- Hero: video controlado pela rolagem (GSAP) ---------- %>
+<section class="hero" id="inicio">
+  <video class="hero-video" src="/assets/gemini_generated_video_b1005ef9.mp4" muted playsinline preload="auto"></video>
+  <div class="hero-conteudo">
+    <span class="hero-rotulo" data-hero>Design de interiores &amp; móveis planejados</span>
+    <h1 data-hero>Casa&amp;Estilo</h1>
+    <p data-hero>Ambientes pensados do jeito que você vive</p>
+    <a class="btn btn-grande" href="#contato" data-hero>Solicitar meu projeto</a>
+  </div>
+  <div class="hero-rolar" aria-hidden="true"><span></span>role para explorar</div>
+</section>
+
+<% if (flash) { %><div class="container flash-flutuante"><%- include('../partials/flash') %></div><% } %>
+
+<%# ---------- Produtos: carrossel sobre fundo diagonal (Figma) ---------- %>
+<section class="secao-tela secao-produtos" id="produtos">
+  <div class="container">
+    <header class="secao-cabecalho claro" data-anima>
+      <span class="sobretitulo">Catálogo</span>
+      <h2>Produtos</h2>
+      <p>Peças sob medida que você pode incluir no seu projeto.</p>
+    </header>
+
+    <% if (!destaques.length) { %>
+      <p class="centro" style="color: var(--branco)">Em breve nosso catálogo estará disponível.</p>
+    <% } else { %>
+      <div class="carrossel" data-anima>
+        <button class="seta seta-esq" type="button" aria-label="Anterior" data-rolar="-1">&#8249;</button>
+        <div class="carrossel-trilho">
+          <% destaques.forEach((p) => { %>
+            <a class="produto-card" href="/minha-conta/solicitacoes/nova?produto=<%= p.id %>">
+              <div class="produto-foto">
+                <img src="<%= foto(fotoProduto(p), 600) %>" alt="<%= p.nome %>" loading="lazy">
+                <span class="produto-tag"><%= p.categoria || TIPOS_PRODUTO[p.tipo] %></span>
+              </div>
+              <div class="produto-info">
+                <strong><%= p.nome %></strong>
+                <small>a partir de</small>
+                <span class="produto-preco"><%= moeda(p.preco) %></span>
+                <span class="produto-acao">Solicitar &rarr;</span>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+        <button class="seta seta-dir" type="button" aria-label="Próximo" data-rolar="1">&#8250;</button>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%#
+  ---------- Comodos: fotos de fundo que trocam com a rolagem ----------
+  A secao fica "presa" (pin) enquanto o usuario rola por todos os comodos.
+%>
+<section class="comodos" id="servicos" data-comodos>
+  <div class="comodos-moldura">
+    <% comodos.forEach((c, i) => { %>
+      <figure class="comodo <%= i === 0 ? 'ativo' : '' %>">
+        <img src="<%= foto(c.foto) %>" alt="<%= c.titulo %>" <%= i > 1 ? 'loading="lazy"' : '' %>>
+        <figcaption>
+          <span class="comodo-numero"><%= String(i + 1).padStart(2, '0') %> / <%= String(comodos.length).padStart(2, '0') %></span>
+          <h3><%= c.titulo %></h3>
+          <p><%= c.texto %></p>
+        </figcaption>
+      </figure>
+    <% }) %>
+
+    <%# Barra de progresso vertical com bolinhas (lado esquerdo, centralizada) %>
+    <nav class="comodos-progresso" aria-label="Cômodos">
+      <span class="progresso-trilho"><span class="progresso-barra"></span></span>
+      <% comodos.forEach((c, i) => { %>
+        <button type="button" class="progresso-ponto <%= i === 0 ? 'ativo' : '' %>" data-ir-comodo="<%= i %>" aria-label="<%= c.titulo %>"></button>
+      <% }) %>
+    </nav>
+  </div>
+</section>
+
+<%# ---------- Sobre nos ---------- %>
+<section class="secao-tela secao-sobre" id="sobre">
+  <div class="container sobre-grade">
+    <div class="sobre-imagem" data-anima="esquerda">
+      <img src="<%= foto('1600210492486-724fe5c67fb0', 1200) %>" alt="Sala projetada pela Casa&Estilo" loading="lazy" data-parallax>
+    </div>
+    <div class="sobre-texto">
+      <header class="secao-cabecalho" data-anima>
+        <span class="sobretitulo">Sobre nós</span>
+        <h2>Cada ambiente conta a história de quem vive nele</h2>
+      </header>
+      <p data-anima>
+        Há mais de uma década unimos design de interiores e marcenaria própria para criar
+        espaços funcionais, bonitos e feitos para durar. Do primeiro rascunho à instalação,
+        você acompanha cada etapa do seu projeto pelo nosso site.
+      </p>
+      <div class="sobre-numeros">
+        <div data-anima><strong data-contar="10">0</strong><span>anos de experiência</span></div>
+        <div data-anima><strong data-contar="800">0</strong><span>projetos entregues</span></div>
+        <div data-anima><strong data-contar="100" data-sufixo="%">0</strong><span>móveis sob medida</span></div>
+      </div>
+      <ul class="sobre-etapas">
+        <li data-anima><b>1</b> Você envia a ideia e fotos do espaço</li>
+        <li data-anima><b>2</b> Criamos o projeto e o orçamento</li>
+        <li data-anima><b>3</b> Produzimos e instalamos no prazo</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<%# ---------- Local ---------- %>
+<section class="secao-tela secao-local" id="local">
+  <div class="container">
+    <header class="secao-cabecalho" data-anima>
+      <span class="sobretitulo">Visite nosso showroom</span>
+      <h2>Onde estamos</h2>
+    </header>
+    <div class="local-grade">
+      <div class="local-mapa" data-anima="esquerda">
+        <iframe title="Mapa da loja" loading="lazy"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=-46.66%2C-23.57%2C-46.62%2C-23.54&amp;layer=mapnik"></iframe>
+      </div>
+      <div class="local-info">
+        <div class="info-item" data-anima>
+          <span class="info-icone">&#9873;</span>
+          <div><strong>Endereço</strong><p>Av. Exemplo, 1000 — Centro<br>São Paulo / SP</p></div>
+        </div>
+        <div class="info-item" data-anima>
+          <span class="info-icone">&#9719;</span>
+          <div><strong>Horário</strong><p>Seg. a sex. das 8h às 18h<br>Sábado das 8h às 12h</p></div>
+        </div>
+        <div class="info-item" data-anima>
+          <span class="info-icone">&#9742;</span>
+          <div><strong>Contato</strong><p>(11) 99999-0000<br>contato@casaestilo.com.br</p></div>
+        </div>
+        <a class="btn" href="#contato" data-anima>Agendar uma visita</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ---------- Contato: dados cliente + servico desejado (formulario translucido) ---------- %>
+<section class="secao-tela secao-contato" id="contato"
+         style="--fundo-contato: url('<%= foto('1600566753190-17f0baa2a6c3', 1800) %>')">
+  <div class="container">
+    <header class="secao-cabecalho claro" data-anima>
+      <span class="sobretitulo">Vamos começar?</span>
+      <h2>CONTATO</h2>
+      <p>Conte como é o seu espaço e retornamos com uma proposta.</p>
+    </header>
+
+    <form action="/contato" method="post" enctype="multipart/form-data">
+      <div class="contato-grade">
+        <div class="cartao cartao-vidro" data-anima="esquerda">
+          <h3>Dados do cliente</h3>
+          <% if (usuario && usuario.tipo === 'cliente') { %>
+            <%# Cliente logado: os dados ja estao na conta %>
+            <dl class="lista-dados">
+              <dt>Nome</dt><dd><%= usuario.registro.nome %></dd>
+              <dt>Telefone</dt><dd><%= usuario.registro.telefone || '-' %></dd>
+              <dt>Endereço</dt><dd><%= usuario.registro.endereco || '-' %></dd>
+              <dt>E-mail</dt><dd><%= usuario.registro.email %></dd>
+            </dl>
+            <p class="ajuda"><a href="/minha-conta/perfil">Atualizar meus dados</a></p>
+          <% } else { %>
+            <div class="campo"><label for="nome">Nome *</label><input id="nome" name="nome" required></div>
+            <div class="campo"><label for="telefone">Telefone</label><input id="telefone" name="telefone" type="tel" placeholder="(00) 00000-0000"></div>
+            <div class="campo"><label for="endereco">Endereço</label><input id="endereco" name="endereco"></div>
+            <div class="campo"><label for="email">E-mail *</label><input id="email" name="email" type="email" required></div>
+            <div class="campo">
+              <label for="senha">Crie uma senha *</label>
+              <input id="senha" name="senha" type="password" minlength="6" required>
+              <p class="ajuda">Com ela você acompanha o status da solicitação. Já tem conta? <a href="/login?voltar=/%23contato">Entrar</a></p>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="cartao cartao-vidro" data-anima="direita">
+          <h3>Serviço desejado</h3>
+          <%- include('../partials/campos-servico', { produtos, produtoSelecionado: '' }) %>
+          <button class="btn btn-bloco" type="submit">Enviar solicitação</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<%- include('../partials/site-fim', { scriptsExtras: [
+  'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js',
+  'https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js',
+  '/js/home.js',
+] }) %>

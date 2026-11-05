@@ -1,0 +1,28 @@
+<%# Cabecalho translucido do site publico e da area do cliente (como no Figma) %>
+<%- include('head') %>
+<header class="site-header">
+  <div class="container">
+    <a href="/" class="logo">Casa&amp;Estilo<span>design de interiores</span></a>
+
+    <button class="btn-menu" type="button" aria-label="Abrir menu" data-alternar="#menu-site">
+      <%- include('icone', { nome: 'menu' }) %>
+    </button>
+
+    <%# data-secao: o home.js sublinha o item da secao visivel %>
+    <nav class="menu" id="menu-site">
+      <a href="/#produtos" data-secao="produtos">produtos</a>
+      <a href="/#servicos" data-secao="servicos">serviços</a>
+      <a href="/#sobre" data-secao="sobre">sobre nós</a>
+      <a href="/#local" data-secao="local">local</a>
+      <a href="/#contato" data-secao="contato">contato</a>
+    </nav>
+
+    <%# Avatar: leva ao login ou a area do usuario logado %>
+    <% if (usuario) { %>
+      <a class="avatar-link" href="<%= usuario.tipo === 'funcionario' ? '/painel' : '/minha-conta' %>"
+         title="<%= usuario.nome %>"><%= usuario.nome.charAt(0).toUpperCase() %></a>
+    <% } else { %>
+      <a class="avatar-link" href="/login" title="Entrar"><%- include('icone', { nome: 'usuario' }) %></a>
+    <% } %>
+  </div>
+</header>

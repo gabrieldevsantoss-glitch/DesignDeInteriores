@@ -1,0 +1,31 @@
+<%- include('../../partials/painel-topo') %>
+
+<div class="pagina-titulo">
+  <h1>Funcionários</h1>
+  <a class="btn" href="/painel/funcionarios/novo">Novo funcionário</a>
+</div>
+
+<div class="cartao tabela-wrap" style="padding: 0">
+  <table>
+    <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Perfil</th><th>Situação</th><th></th></tr></thead>
+    <tbody>
+      <% funcionarios.forEach((f) => { %>
+        <tr>
+          <td><%= f.nome %></td>
+          <td><%= f.email %></td>
+          <td><%= f.telefone || '-' %></td>
+          <td><%= PERFIS[f.perfil] %></td>
+          <td><%= f.ativo ? 'Ativo' : 'Inativo' %></td>
+          <td><a href="/painel/funcionarios/<%= f.id %>/editar">Editar</a></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<p class="ajuda" style="margin-top: 12px">
+  <strong>Administrador:</strong> acesso total, incluindo estoque, catálogo e funcionários.
+  <strong>Vendedor:</strong> solicitações, pedidos, clientes e consulta ao catálogo.
+</p>
+
+<%- include('../../partials/painel-fim') %>

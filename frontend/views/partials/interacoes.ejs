@@ -1,0 +1,34 @@
+<%#
+  Historico de interacoes + formulario para registrar novo contato (RF 09).
+  Recebe: interacoes, clienteId, solicitacaoId?, pedidoId?, voltar
+%>
+<form action="/painel/interacoes" method="post" style="margin-bottom: 16px">
+  <input type="hidden" name="cliente_id" value="<%= clienteId %>">
+  <input type="hidden" name="solicitacao_id" value="<%= typeof solicitacaoId !== 'undefined' ? solicitacaoId : '' %>">
+  <input type="hidden" name="pedido_id" value="<%= typeof pedidoId !== 'undefined' ? pedidoId : '' %>">
+  <input type="hidden" name="voltar" value="<%= voltar %>">
+  <div class="linha-campos">
+    <div class="campo">
+      <label for="canal">Canal</label>
+      <select id="canal" name="canal">
+        <% Object.entries(CANAIS).filter(([v]) => v !== 'mensagem').forEach(([valor, rotulo]) => { %>
+          <option value="<%= valor %>"><%= rotulo %></option>
+        <% }) %>
+      </select>
+    </div>
+  </div>
+  <div class="campo"><textarea name="descricao" required placeholder="O que foi conversado? (notas internas não aparecem para o cliente)"></textarea></div>
+  <button class="btn btn-pequeno" type="submit">Registrar interação</button>
+</form>
+
+<div class="mensagens">
+  <% if (!interacoes.length) { %><p class="texto-suave">Nenhuma interação registrada.</p><% } %>
+  <% interacoes.forEach((i) => { %>
+    <div class="mensagem <%= i.funcionario ? 'da-equipe' : '' %>">
+      <small>
+        <%= CANAIS[i.canal] %> · <%= i.funcionario ? i.funcionario.nome : 'Cliente' %> · <%= dataHora(i.created_at) %>
+      </small>
+      <%= i.descricao %>
+    </div>
+  <% }) %>
+</div>

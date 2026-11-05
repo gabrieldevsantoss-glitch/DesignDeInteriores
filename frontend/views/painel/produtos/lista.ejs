@@ -1,0 +1,40 @@
+<%- include('../../partials/painel-topo') %>
+<% const ehAdmin = usuario.perfil === 'admin'; %>
+
+<div class="pagina-titulo">
+  <h1>Produtos e serviços</h1>
+  <% if (ehAdmin) { %><a class="btn" href="/painel/produtos/novo">Novo produto</a><% } %>
+</div>
+
+<form class="filtros" method="get">
+  <input name="busca" value="<%= query.busca || '' %>" placeholder="Buscar pelo nome">
+  <select name="tipo">
+    <option value="">Produtos e serviços</option>
+    <% Object.entries(TIPOS_PRODUTO).forEach(([valor, rotulo]) => { %>
+      <option value="<%= valor %>" <%= query.tipo === valor ? 'selected' : '' %>><%= rotulo %></option>
+    <% }) %>
+  </select>
+  <button class="btn" type="submit">Filtrar</button>
+</form>
+
+<div class="cartao tabela-wrap" style="padding: 0">
+  <table>
+    <thead><tr><th>Nome</th><th>Tipo</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Situação</th><% if (ehAdmin) { %><th></th><% } %></tr></thead>
+    <tbody>
+      <% if (!produtos.length) { %><tr><td colspan="7" class="vazio">Nenhum produto cadastrado.</td></tr><% } %>
+      <% produtos.forEach((p) => { const baixo = p.tipo === 'produto' && p.quantidade_estoque <= p.estoque_minimo; %>
+        <tr>
+          <td><%= p.nome %></td>
+          <td><%= TIPOS_PRODUTO[p.tipo] %></td>
+          <td><%= p.categoria || '-' %></td>
+          <td><%= moeda(p.preco) %></td>
+          <td class="<%= baixo ? 'estoque-baixo' : '' %>"><%= p.tipo === 'produto' ? p.quantidade_estoque : '—' %></td>
+          <td><%= p.ativo ? 'Ativo' : 'Inativo' %></td>
+          <% if (ehAdmin) { %><td><a href="/painel/produtos/<%= p.id %>/editar">Editar</a></td><% } %>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../../partials/painel-fim') %>

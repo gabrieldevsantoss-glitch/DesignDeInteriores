@@ -1,0 +1,46 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container">
+    <div class="pagina-titulo">
+      <h1>Pedido #<%= pedido.id %></h1>
+      <a href="/minha-conta">&larr; Minha conta</a>
+    </div>
+
+    <div class="grade-2">
+      <section class="cartao">
+        <h2>Status atual: <%- include('../partials/status', { valor: pedido.status }) %></h2>
+        <dl class="lista-dados">
+          <dt>Data</dt><dd><%= data(pedido.created_at) %></dd>
+          <dt>Previsão de entrega</dt><dd><%= data(pedido.previsao_entrega) %></dd>
+          <dt>Endereço</dt><dd><%= pedido.endereco_entrega || '-' %></dd>
+          <% if (pedido.solicitacao) { %>
+            <dt>Solicitação</dt><dd><a href="/minha-conta/solicitacoes/<%= pedido.solicitacao.id %>"><%= pedido.solicitacao.protocolo %></a></dd>
+          <% } %>
+        </dl>
+
+        <div class="tabela-wrap" style="margin-top: 16px">
+          <table>
+            <thead><tr><th>Item</th><th>Qtd.</th><th>Unitário</th><th>Subtotal</th></tr></thead>
+            <tbody>
+              <% pedido.itens.forEach((i) => { %>
+                <tr>
+                  <td><%= i.produto.nome %></td>
+                  <td><%= i.quantidade %></td>
+                  <td><%= moeda(i.preco_unitario) %></td>
+                  <td><%= moeda(i.preco_unitario * i.quantidade) %></td>
+                </tr>
+              <% }) %>
+              <tr><td colspan="3"><strong>Total</strong></td><td><strong><%= moeda(pedido.valor_total) %></strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="cartao">
+        <h2>Andamento</h2>
+        <%- include('../partials/timeline') %>
+      </section>
+    </div>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>

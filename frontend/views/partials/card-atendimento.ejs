@@ -1,0 +1,10 @@
+<%#
+  Card "nome / status / assunto" do esboco mobile (PAI).
+  Recebe: href, nome, status, assunto
+%>
+<a class="card-atend" href="<%= href %>">
+  <span class="avatar"><%= (nome || '?').charAt(0).toUpperCase() %></span>
+  <span class="nome"><%= nome %></span>
+  <%- include('status', { valor: status }) %>
+  <span class="assunto"><%= assunto %></span>
+</a>

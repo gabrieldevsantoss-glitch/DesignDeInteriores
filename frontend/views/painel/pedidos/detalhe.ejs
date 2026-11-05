@@ -1,0 +1,76 @@
+<%- include('../../partials/painel-topo') %>
+<% const cliente = pedido.cliente;
+   const fone = (cliente.telefone || '').replace(/\D/g, ''); %>
+
+<div class="pagina-titulo">
+  <h1>Pedido #<%= pedido.id %> <%- include('../../partials/status', { valor: pedido.status }) %></h1>
+  <a href="/painel/pedidos">&larr; Pedidos</a>
+</div>
+
+<div class="grade-2">
+  <div class="empilhado">
+    <section class="cartao">
+      <h2>Informações do pedido</h2>
+      <dl class="lista-dados">
+        <dt>Cliente</dt><dd><a href="/painel/clientes/<%= cliente.id %>"><%= cliente.nome %></a> · <%= cliente.telefone || cliente.email %></dd>
+        <dt>Criado em</dt><dd><%= dataHora(pedido.created_at) %> por <%= pedido.responsavel ? pedido.responsavel.nome : '-' %></dd>
+        <dt>Previsão</dt><dd><%= data(pedido.previsao_entrega) %></dd>
+        <dt>Entrega</dt><dd><%= pedido.endereco_entrega || '-' %></dd>
+        <% if (pedido.solicitacao) { %>
+          <dt>Solicitação</dt><dd><a href="/painel/solicitacoes/<%= pedido.solicitacao.id %>"><%= pedido.solicitacao.protocolo %></a></dd>
+        <% } %>
+        <% if (pedido.observacoes) { %><dt>Observações</dt><dd><%= pedido.observacoes %></dd><% } %>
+      </dl>
+
+      <div class="tabela-wrap" style="margin-top: 16px">
+        <table>
+          <thead><tr><th>Item</th><th>Tipo</th><th>Qtd.</th><th>Unitário</th><th>Subtotal</th></tr></thead>
+          <tbody>
+            <% pedido.itens.forEach((i) => { %>
+              <tr>
+                <td><%= i.produto.nome %></td>
+                <td><%= TIPOS_PRODUTO[i.produto.tipo] %></td>
+                <td><%= i.quantidade %></td>
+                <td><%= moeda(i.preco_unitario) %></td>
+                <td><%= moeda(i.preco_unitario * i.quantidade) %></td>
+              </tr>
+            <% }) %>
+            <tr><td colspan="4"><strong>Total</strong></td><td><strong><%= moeda(pedido.valor_total) %></strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <h2>Interações</h2>
+      <%- include('../../partials/interacoes', { clienteId: cliente.id, pedidoId: pedido.id, voltar: '/painel/pedidos/' + pedido.id }) %>
+    </section>
+  </div>
+
+  <div class="empilhado">
+    <section class="cartao">
+      <h2>Atualizar status</h2>
+      <form action="/painel/pedidos/<%= pedido.id %>/status" method="post">
+        <div class="campo">
+          <select name="status" aria-label="Novo status">
+            <% Object.entries(STATUS).forEach(([valor, rotulo]) => { %>
+              <option value="<%= valor %>" <%= pedido.status === valor ? 'selected' : '' %>><%= rotulo %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="campo"><input name="observacao" maxlength="300" placeholder="Observação (opcional)"></div>
+        <button class="btn btn-pequeno" type="submit">Salvar status</button>
+      </form>
+      <% if (fone) { %>
+        <a class="btn btn-whatsapp btn-bloco" style="margin-top: 16px" href="https://wa.me/55<%= fone %>" target="_blank" rel="noopener">Entrar em contato</a>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <h2>Histórico de status</h2>
+      <%- include('../../partials/timeline') %>
+    </section>
+  </div>
+</div>
+
+<%- include('../../partials/painel-fim') %>

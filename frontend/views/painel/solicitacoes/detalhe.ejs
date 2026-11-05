@@ -1,0 +1,103 @@
+<%- include('../../partials/painel-topo') %>
+<% const cliente = solicitacao.cliente;
+   const fone = (cliente.telefone || '').replace(/\D/g, ''); %>
+
+<div class="pagina-titulo">
+  <h1>Solicitação <%= solicitacao.protocolo %></h1>
+  <a href="/painel/solicitacoes">&larr; Solicitações</a>
+</div>
+
+<div class="grade-2">
+  <div class="empilhado">
+    <%# "dados do usuario" (esboco mobile) %>
+    <section class="cartao">
+      <h2>Cliente</h2>
+      <dl class="lista-dados">
+        <dt>Nome</dt><dd><a href="/painel/clientes/<%= cliente.id %>"><%= cliente.nome %></a></dd>
+        <dt>E-mail</dt><dd><%= cliente.email %></dd>
+        <dt>Telefone</dt><dd><%= cliente.telefone || '-' %></dd>
+        <dt>Endereço</dt><dd><%= cliente.endereco || '-' %></dd>
+      </dl>
+    </section>
+
+    <%# "informacoes do pedido" %>
+    <section class="cartao">
+      <h2>Serviço desejado <%- include('../../partials/status', { valor: solicitacao.status }) %></h2>
+      <dl class="lista-dados">
+        <dt>Enviada em</dt><dd><%= dataHora(solicitacao.created_at) %></dd>
+        <dt>Cômodo</dt><dd><%= ESPACOS[solicitacao.espaco] %></dd>
+        <dt>Estilo</dt><dd><%= ESTILOS[solicitacao.estilo] || '-' %></dd>
+        <dt>Interesse</dt><dd><%= solicitacao.produto ? solicitacao.produto.nome : '-' %></dd>
+        <dt>Orçamento</dt>
+        <dd><%= solicitacao.orcamento_min ? moeda(solicitacao.orcamento_min) : '-' %> a <%= solicitacao.orcamento_max ? moeda(solicitacao.orcamento_max) : '-' %></dd>
+        <dt>Responsável</dt><dd><%= solicitacao.responsavel ? solicitacao.responsavel.nome : 'Ninguém assumiu ainda' %></dd>
+      </dl>
+      <p style="white-space: pre-line"><%= solicitacao.descricao %></p>
+      <h3>Arquivos</h3>
+      <%- include('../../partials/anexos') %>
+      <% if (solicitacao.pedidos.length) { %>
+        <h3 style="margin-top: 16px">Pedidos gerados</h3>
+        <% solicitacao.pedidos.forEach((p) => { %>
+          <a href="/painel/pedidos/<%= p.id %>">Pedido #<%= p.id %></a> — <%= moeda(p.valor_total) %>
+          <%- include('../../partials/status', { valor: p.status }) %><br>
+        <% }) %>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <h2>Interações com o cliente</h2>
+      <%- include('../../partials/interacoes', {
+        clienteId: cliente.id, solicitacaoId: solicitacao.id, voltar: '/painel/solicitacoes/' + solicitacao.id }) %>
+    </section>
+  </div>
+
+  <div class="empilhado">
+    <section class="cartao">
+      <h2>Ações</h2>
+      <div class="acoes">
+        <% if (!solicitacao.responsavel || solicitacao.responsavel.id !== usuario.id) { %>
+          <form action="/painel/solicitacoes/<%= solicitacao.id %>/assumir" method="post">
+            <button class="btn">Assumir atendimento</button>
+          </form>
+        <% } %>
+        <a class="btn btn-claro" href="/painel/pedidos/novo?solicitacao=<%= solicitacao.id %>">Gerar pedido</a>
+        <% if (fone) { %>
+          <a class="btn btn-whatsapp" href="https://wa.me/55<%= fone %>" target="_blank" rel="noopener">Entrar em contato</a>
+        <% } %>
+      </div>
+
+      <%# Alterar status (RF 06) %>
+      <form action="/painel/solicitacoes/<%= solicitacao.id %>/status" method="post" style="margin-top: 18px">
+        <div class="campo">
+          <label for="status">Alterar status</label>
+          <select id="status" name="status">
+            <% Object.entries(STATUS).forEach(([valor, rotulo]) => { %>
+              <option value="<%= valor %>" <%= solicitacao.status === valor ? 'selected' : '' %>><%= rotulo %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="campo"><input name="observacao" maxlength="300" placeholder="Observação (opcional)"></div>
+        <button class="btn btn-pequeno" type="submit">Salvar status</button>
+      </form>
+
+      <% if (usuario.perfil === 'admin') { %>
+        <form action="/painel/solicitacoes/<%= solicitacao.id %>/encaminhar" method="post" style="margin-top: 18px">
+          <div class="campo">
+            <label for="funcionario_id">Encaminhar para</label>
+            <select id="funcionario_id" name="funcionario_id">
+              <% funcionarios.forEach((f) => { %><option value="<%= f.id %>"><%= f.nome %></option><% }) %>
+            </select>
+          </div>
+          <button class="btn btn-pequeno btn-claro" type="submit">Encaminhar</button>
+        </form>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <h2>Histórico de status</h2>
+      <%- include('../../partials/timeline') %>
+    </section>
+  </div>
+</div>
+
+<%- include('../../partials/painel-fim') %>

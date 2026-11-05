@@ -1,0 +1,17 @@
+<%# Historico de status (RF 10): data, hora, responsavel e alteracao %>
+<% if (!historico.length) { %>
+  <p class="texto-suave">Sem alterações registradas.</p>
+<% } else { %>
+  <ul class="timeline">
+    <% historico.forEach((h) => { %>
+      <li>
+        <strong><%= STATUS[h.status_novo] || h.status_novo %></strong>
+        <% if (h.observacao) { %> — <%= h.observacao %><% } %>
+        <small>
+          <%= dataHora(h.created_at) %>
+          <% if (h.funcionario) { %> · por <%= h.funcionario.nome %><% } %>
+        </small>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>

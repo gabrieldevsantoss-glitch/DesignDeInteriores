@@ -1,0 +1,7 @@
+<%# Mensagem de sucesso/erro vinda do redirect anterior ou da propria pagina %>
+<% if (flash) { %>
+  <div class="aviso aviso-<%= flash.tipo %>" role="status"><%= flash.texto %></div>
+<% } %>
+<% if (typeof erro !== 'undefined' && erro) { %>
+  <div class="aviso aviso-erro" role="alert"><%= erro %></div>
+<% } %>

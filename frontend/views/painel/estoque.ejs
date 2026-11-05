@@ -1,0 +1,73 @@
+<%- include('../partials/painel-topo') %>
+
+<div class="pagina-titulo"><h1>Estoque</h1></div>
+
+<div class="grade-2">
+  <div class="empilhado">
+    <section class="cartao tabela-wrap">
+      <h2>Saldo atual</h2>
+      <table>
+        <thead><tr><th>Produto</th><th>Disponível</th><th>Mínimo</th><th></th></tr></thead>
+        <tbody>
+          <% if (!produtos.length) { %><tr><td colspan="4" class="vazio">Nenhum produto cadastrado.</td></tr><% } %>
+          <% produtos.forEach((p) => { %>
+            <tr>
+              <td><%= p.nome %></td>
+              <td class="<%= p.quantidade_estoque <= p.estoque_minimo ? 'estoque-baixo' : '' %>"><%= p.quantidade_estoque %></td>
+              <td><%= p.estoque_minimo %></td>
+              <td><a href="/painel/estoque?produto=<%= p.id %>">movimentações</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="cartao tabela-wrap">
+      <div class="pagina-titulo">
+        <h2>Movimentações</h2>
+        <% if (query.produto) { %><a href="/painel/estoque">ver todas</a><% } %>
+      </div>
+      <table>
+        <thead><tr><th>Data</th><th>Produto</th><th>Tipo</th><th>Qtd.</th><th>Motivo</th><th>Responsável</th></tr></thead>
+        <tbody>
+          <% if (!movimentacoes.length) { %><tr><td colspan="6" class="vazio">Sem movimentações.</td></tr><% } %>
+          <% movimentacoes.forEach((m) => { %>
+            <tr>
+              <td><%= dataHora(m.created_at) %></td>
+              <td><%= m.produto.nome %></td>
+              <td><%= m.tipo === 'entrada' ? 'Entrada' : 'Saída' %></td>
+              <td><%= m.tipo === 'entrada' ? '+' : '−' %><%= m.quantidade %></td>
+              <td><%= m.motivo || '-' %></td>
+              <td><%= m.funcionario ? m.funcionario.nome : '-' %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <%# Registro manual de entrada/saida (RF 03) %>
+  <form class="cartao" action="/painel/estoque" method="post">
+    <h2>Registrar movimentação</h2>
+    <div class="campo">
+      <label for="produto_id">Produto *</label>
+      <select id="produto_id" name="produto_id" required>
+        <option value="">Selecione...</option>
+        <% produtos.forEach((p) => { %>
+          <option value="<%= p.id %>" <%= query.produto == p.id ? 'selected' : '' %>><%= p.nome %> (<%= p.quantidade_estoque %>)</option>
+        <% }) %>
+      </select>
+    </div>
+    <div class="linha-campos">
+      <div class="campo">
+        <label for="tipo">Tipo *</label>
+        <select id="tipo" name="tipo"><option value="entrada">Entrada</option><option value="saida">Saída</option></select>
+      </div>
+      <div class="campo"><label for="quantidade">Quantidade *</label><input id="quantidade" name="quantidade" type="number" min="1" value="1" required></div>
+    </div>
+    <div class="campo"><label for="motivo">Motivo</label><input id="motivo" name="motivo" maxlength="200" placeholder="Ex.: compra do fornecedor, avaria"></div>
+    <button class="btn btn-bloco" type="submit">Registrar</button>
+  </form>
+</div>
+
+<%- include('../partials/painel-fim') %>

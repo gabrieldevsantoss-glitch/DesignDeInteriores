@@ -1,0 +1,34 @@
+<%- include('../../partials/painel-topo') %>
+
+<div class="pagina-titulo"><h1><%= query.status === 'concluido' ? 'Concluídos' : 'Solicitações' %></h1></div>
+
+<%# Filtro rapido por status %>
+<nav class="abas">
+  <a href="/painel/solicitacoes" class="<%= !query.status && !query.minhas ? 'ativo' : '' %>">Todas</a>
+  <a href="/painel/solicitacoes?minhas=1" class="<%= query.minhas ? 'ativo' : '' %>">Minhas</a>
+  <% Object.entries(STATUS).forEach(([valor, rotulo]) => { %>
+    <a href="/painel/solicitacoes?status=<%= valor %>" class="<%= query.status === valor ? 'ativo' : '' %>"><%= rotulo %></a>
+  <% }) %>
+</nav>
+
+<form class="filtros" method="get">
+  <% if (query.status) { %><input type="hidden" name="status" value="<%= query.status %>"><% } %>
+  <input name="busca" value="<%= query.busca || '' %>" placeholder="Buscar por protocolo ou cliente">
+  <button class="btn" type="submit">Buscar</button>
+</form>
+
+<% if (!solicitacoes.length) { %>
+  <p class="cartao vazio">Nenhuma solicitação encontrada.</p>
+<% } else { %>
+  <div class="lista-cards">
+    <% solicitacoes.forEach((s) => { %>
+      <%- include('../../partials/card-atendimento', {
+        href: '/painel/solicitacoes/' + s.id,
+        nome: s.cliente.nome + ' · ' + s.protocolo + (s.responsavel ? ' · ' + s.responsavel.nome : ''),
+        status: s.status,
+        assunto: ESPACOS[s.espaco] + ': ' + s.descricao }) %>
+    <% }) %>
+  </div>
+<% } %>
+
+<%- include('../../partials/painel-fim') %>

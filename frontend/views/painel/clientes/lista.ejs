@@ -1,0 +1,31 @@
+<%- include('../../partials/painel-topo') %>
+
+<div class="pagina-titulo">
+  <h1>Clientes</h1>
+  <a class="btn" href="/painel/clientes/novo">Novo cliente</a>
+</div>
+
+<form class="filtros" method="get">
+  <input name="busca" value="<%= query.busca || '' %>" placeholder="Buscar por nome, e-mail ou telefone">
+  <button class="btn" type="submit">Buscar</button>
+</form>
+
+<div class="cartao tabela-wrap" style="padding: 0">
+  <table>
+    <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Cidade</th><th>Conta no site</th></tr></thead>
+    <tbody>
+      <% if (!clientes.length) { %><tr><td colspan="5" class="vazio">Nenhum cliente encontrado.</td></tr><% } %>
+      <% clientes.forEach((c) => { %>
+        <tr>
+          <td><a href="/painel/clientes/<%= c.id %>"><%= c.nome %></a></td>
+          <td><%= c.email %></td>
+          <td><%= c.telefone || '-' %></td>
+          <td><%= c.cidade ? c.cidade + (c.estado ? '/' + c.estado : '') : '-' %></td>
+          <td><%= c.auth_id ? 'Sim' : 'Não' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../../partials/painel-fim') %>

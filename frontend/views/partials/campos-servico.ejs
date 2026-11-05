@@ -1,0 +1,61 @@
+<%#
+  Campos "Servico desejado" do formulario de contato (Figma) - RF 15.
+  Reutilizado na pagina inicial e em "Nova solicitacao".
+  Recebe: produtos (lista) e produtoSelecionado (id opcional).
+%>
+<div class="campo">
+  <label for="espaco">Cômodo desejado *</label>
+  <select id="espaco" name="espaco" required>
+    <option value="">Selecione...</option>
+    <% Object.entries(ESPACOS).forEach(([valor, rotulo]) => { %>
+      <option value="<%= valor %>"><%= rotulo %></option>
+    <% }) %>
+  </select>
+</div>
+
+<div class="campo">
+  <label for="estilo">Tipo de estilo</label>
+  <select id="estilo" name="estilo">
+    <option value="">Ainda não sei</option>
+    <% Object.entries(ESTILOS).forEach(([valor, rotulo]) => { %>
+      <option value="<%= valor %>"><%= rotulo %></option>
+    <% }) %>
+  </select>
+</div>
+
+<div class="campo">
+  <label for="produto_id">Produto ou serviço de interesse</label>
+  <select id="produto_id" name="produto_id">
+    <option value="">Nenhum em específico</option>
+    <% produtos.forEach((p) => { %>
+      <option value="<%= p.id %>" <%= String(p.id) === String(produtoSelecionado || '') ? 'selected' : '' %>><%= p.nome %></option>
+    <% }) %>
+  </select>
+</div>
+
+<div class="linha-campos">
+  <div class="campo">
+    <label for="orcamento_min">Orçamento mín. (R$)</label>
+    <input id="orcamento_min" name="orcamento_min" type="number" min="0" step="0.01" placeholder="99,99">
+  </div>
+  <div class="campo">
+    <label for="orcamento_max">Orçamento máx. (R$)</label>
+    <input id="orcamento_max" name="orcamento_max" type="number" min="0" step="0.01" placeholder="999,99">
+  </div>
+</div>
+
+<div class="campo">
+  <label for="descricao">Descrição do espaço *</label>
+  <textarea id="descricao" name="descricao" required placeholder="Medidas, cores, o que você imagina para o ambiente..."></textarea>
+</div>
+
+<div class="campo">
+  <label for="referencias">Imagens de referência / inspiração</label>
+  <input id="referencias" name="referencias" type="file" accept="image/png,image/jpeg,image/webp" multiple>
+</div>
+
+<div class="campo">
+  <label for="planta">Planta do ambiente</label>
+  <input id="planta" name="planta" type="file" accept="image/png,image/jpeg,image/webp,application/pdf">
+  <p class="ajuda">PNG, JPG, WEBP ou PDF, até 5 MB cada.</p>
+</div>

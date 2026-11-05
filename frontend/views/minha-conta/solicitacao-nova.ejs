@@ -1,0 +1,17 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container" style="max-width: 720px">
+    <div class="pagina-titulo">
+      <h1>Nova solicitação</h1>
+      <a href="/minha-conta">&larr; Minha conta</a>
+    </div>
+    <%- include('../partials/flash') %>
+
+    <form class="cartao" action="/minha-conta/solicitacoes" method="post" enctype="multipart/form-data">
+      <h2>Serviço desejado</h2>
+      <%- include('../partials/campos-servico') %>
+      <button class="btn btn-bloco" type="submit">Enviar solicitação</button>
+    </form>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>

@@ -1,0 +1,80 @@
+<%- include('../partials/painel-topo') %>
+
+<div class="pagina-titulo">
+  <h1>Olá, <%= usuario.nome.split(' ')[0] %></h1>
+  <a class="btn" href="/painel/pedidos/novo">Novo pedido</a>
+</div>
+
+<%# Indicadores principais (RF 11) %>
+<div class="indicadores">
+  <div class="indicador destaque"><span>Novas solicitações</span><strong><%= totais.novas %></strong></div>
+  <div class="indicador"><span>Solicitações (total)</span><strong><%= totais.solicitacoes %></strong></div>
+  <div class="indicador"><span>Pedidos em andamento</span><strong><%= totais.pedidosAndamento %></strong></div>
+  <div class="indicador"><span>Faturado (concluídos)</span><strong><%= moeda(totais.faturamento) %></strong></div>
+</div>
+
+<div class="grade-2">
+  <div class="empilhado">
+    <%# "Novas mensagens" do esboco mobile: solicitacoes sem responsavel %>
+    <section class="cartao">
+      <div class="pagina-titulo"><h2>Novas solicitações</h2><a href="/painel/solicitacoes">ver todas</a></div>
+      <% if (!recentes.length) { %>
+        <p class="vazio">Nenhuma solicitação aguardando atendente.</p>
+      <% } else { %>
+        <div class="lista-cards">
+          <% recentes.forEach((s) => { %>
+            <%- include('../partials/card-atendimento', {
+              href: '/painel/solicitacoes/' + s.id, nome: s.cliente.nome, status: s.status,
+              assunto: ESPACOS[s.espaco] + ': ' + s.descricao }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <div class="pagina-titulo"><h2>Meus atendimentos</h2><a href="/painel/solicitacoes?minhas=1">ver todos</a></div>
+      <% if (!minhas.length) { %>
+        <p class="vazio">Você não tem solicitações em aberto.</p>
+      <% } else { %>
+        <div class="lista-cards">
+          <% minhas.forEach((s) => { %>
+            <%- include('../partials/card-atendimento', {
+              href: '/painel/solicitacoes/' + s.id, nome: s.cliente.nome, status: s.status,
+              assunto: ESPACOS[s.espaco] + ': ' + s.descricao }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </div>
+
+  <div class="empilhado">
+    <% const maxSol = Math.max(1, ...Object.values(solicitacoesStatus)); %>
+    <section class="cartao">
+      <h2>Solicitações por status</h2>
+      <div class="barra-status">
+        <% Object.entries(STATUS).forEach(([valor, rotulo]) => { const qtd = solicitacoesStatus[valor] || 0; %>
+          <div>
+            <a href="/painel/solicitacoes?status=<%= valor %>"><%= rotulo %></a>
+            <span class="trilho"><i style="width: <%= (qtd / maxSol) * 100 %>%"></i></span>
+            <strong><%= qtd %></strong>
+          </div>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="cartao">
+      <h2>Estoque baixo</h2>
+      <% if (!estoqueBaixo.length) { %>
+        <p class="texto-suave">Tudo certo com o estoque.</p>
+      <% } else { %>
+        <ul>
+          <% estoqueBaixo.forEach((p) => { %>
+            <li><%= p.nome %> — <span class="estoque-baixo"><%= p.quantidade_estoque %></span> (mín. <%= p.estoque_minimo %>)</li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </section>
+  </div>
+</div>
+
+<%- include('../partials/painel-fim') %>

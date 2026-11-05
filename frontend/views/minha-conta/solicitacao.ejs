@@ -1,0 +1,57 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container">
+    <div class="pagina-titulo">
+      <h1>Solicitação <%= solicitacao.protocolo %></h1>
+      <a href="/minha-conta">&larr; Minha conta</a>
+    </div>
+    <%- include('../partials/flash') %>
+
+    <div class="grade-2">
+      <div class="empilhado">
+        <section class="cartao">
+          <h2>Status atual: <%- include('../partials/status', { valor: solicitacao.status }) %></h2>
+          <dl class="lista-dados">
+            <dt>Enviada em</dt><dd><%= dataHora(solicitacao.created_at) %></dd>
+            <dt>Cômodo</dt><dd><%= ESPACOS[solicitacao.espaco] %></dd>
+            <dt>Estilo</dt><dd><%= ESTILOS[solicitacao.estilo] || '-' %></dd>
+            <dt>Interesse</dt><dd><%= solicitacao.produto ? solicitacao.produto.nome : '-' %></dd>
+            <dt>Orçamento</dt>
+            <dd><%= solicitacao.orcamento_min ? moeda(solicitacao.orcamento_min) : '-' %> a <%= solicitacao.orcamento_max ? moeda(solicitacao.orcamento_max) : '-' %></dd>
+            <dt>Atendente</dt><dd><%= solicitacao.responsavel ? solicitacao.responsavel.nome : 'Aguardando atribuição' %></dd>
+          </dl>
+          <p style="white-space: pre-line"><%= solicitacao.descricao %></p>
+        </section>
+
+        <section class="cartao">
+          <h2>Arquivos enviados</h2>
+          <%- include('../partials/anexos') %>
+        </section>
+
+        <%# Conversa com a equipe (RF 09) %>
+        <section class="cartao">
+          <h2>Mensagens</h2>
+          <div class="mensagens">
+            <% if (!mensagens.length) { %><p class="texto-suave">Nenhuma mensagem ainda.</p><% } %>
+            <% mensagens.forEach((m) => { %>
+              <div class="mensagem <%= m.funcionario ? 'da-equipe' : '' %>">
+                <small><%= m.funcionario ? m.funcionario.nome + ' (equipe)' : 'Você' %> · <%= dataHora(m.created_at) %></small>
+                <%= m.descricao %>
+              </div>
+            <% }) %>
+          </div>
+          <form action="/minha-conta/solicitacoes/<%= solicitacao.id %>/mensagens" method="post">
+            <div class="campo"><textarea name="descricao" required placeholder="Escreva uma mensagem para a equipe..."></textarea></div>
+            <button class="btn" type="submit">Enviar mensagem</button>
+          </form>
+        </section>
+      </div>
+
+      <section class="cartao">
+        <h2>Andamento</h2>
+        <%- include('../partials/timeline') %>
+      </section>
+    </div>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>

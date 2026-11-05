@@ -1,0 +1,26 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container">
+    <div class="auth-caixa cartao">
+      <h1>Entrar</h1>
+      <p class="texto-suave">Clientes e equipe usam o mesmo acesso.</p>
+      <%- include('../partials/flash') %>
+
+      <form action="/login" method="post">
+        <input type="hidden" name="voltar" value="<%= voltar %>">
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input id="email" name="email" type="email" value="<%= email %>" required autofocus>
+        </div>
+        <div class="campo">
+          <label for="senha">Senha</label>
+          <input id="senha" name="senha" type="password" required>
+        </div>
+        <button class="btn btn-bloco" type="submit">Entrar</button>
+      </form>
+
+      <p class="centro">Ainda não tem conta? <a href="/cadastro">Criar conta</a></p>
+    </div>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>

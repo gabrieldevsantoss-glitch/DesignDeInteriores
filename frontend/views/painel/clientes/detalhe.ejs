@@ -1,0 +1,71 @@
+<%- include('../../partials/painel-topo') %>
+<% const fone = (cliente.telefone || '').replace(/\D/g, ''); %>
+
+<div class="pagina-titulo">
+  <h1><%= cliente.nome %></h1>
+  <div class="acoes">
+    <a class="btn btn-claro" href="/painel/clientes/<%= cliente.id %>/editar">Editar</a>
+    <% if (fone) { %><a class="btn btn-whatsapp" href="https://wa.me/55<%= fone %>" target="_blank" rel="noopener">WhatsApp</a><% } %>
+  </div>
+</div>
+
+<div class="grade-2">
+  <div class="empilhado">
+    <%# Historico de pedidos do cliente (RF 14) %>
+    <section class="cartao">
+      <div class="pagina-titulo">
+        <h2>Histórico de pedidos</h2>
+        <a class="btn btn-pequeno" href="/painel/pedidos/novo">Novo pedido</a>
+      </div>
+      <% if (!cliente.pedidos.length) { %>
+        <p class="texto-suave">Nenhum pedido.</p>
+      <% } else { %>
+        <div class="lista-cards">
+          <% cliente.pedidos.forEach((p) => { %>
+            <%- include('../../partials/card-atendimento', {
+              href: '/painel/pedidos/' + p.id, nome: 'Pedido #' + p.id + ' · ' + data(p.created_at),
+              status: p.status, assunto: moeda(p.valor_total) }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <h2>Solicitações</h2>
+      <% if (!cliente.solicitacoes.length) { %>
+        <p class="texto-suave">Nenhuma solicitação.</p>
+      <% } else { %>
+        <div class="lista-cards">
+          <% cliente.solicitacoes.forEach((s) => { %>
+            <%- include('../../partials/card-atendimento', {
+              href: '/painel/solicitacoes/' + s.id, nome: s.protocolo + ' · ' + data(s.created_at),
+              status: s.status, assunto: ESPACOS[s.espaco] + ': ' + s.descricao }) %>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="cartao">
+      <h2>Interações</h2>
+      <%- include('../../partials/interacoes', {
+        interacoes: cliente.interacoes, clienteId: cliente.id, voltar: '/painel/clientes/' + cliente.id }) %>
+    </section>
+  </div>
+
+  <section class="cartao">
+    <h2>Dados do cliente</h2>
+    <dl class="lista-dados">
+      <dt>E-mail</dt><dd><%= cliente.email %></dd>
+      <dt>Telefone</dt><dd><%= cliente.telefone || '-' %></dd>
+      <dt>CPF/CNPJ</dt><dd><%= cliente.cpf_cnpj || '-' %></dd>
+      <dt>Endereço</dt><dd><%= cliente.endereco || '-' %></dd>
+      <dt>Cidade</dt><dd><%= cliente.cidade ? cliente.cidade + '/' + (cliente.estado || '') : '-' %></dd>
+      <dt>CEP</dt><dd><%= cliente.cep || '-' %></dd>
+      <dt>Conta no site</dt><dd><%= cliente.auth_id ? 'Sim' : 'Não' %></dd>
+      <dt>Cliente desde</dt><dd><%= data(cliente.created_at) %></dd>
+    </dl>
+    <% if (cliente.observacoes) { %><p style="white-space: pre-line"><%= cliente.observacoes %></p><% } %>
+  </section>
+</div>
+
+<%- include('../../partials/painel-fim') %>

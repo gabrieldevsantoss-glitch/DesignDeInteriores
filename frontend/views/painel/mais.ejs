@@ -1,0 +1,20 @@
+<%# Menu "config/mais" da barra inferior do celular %>
+<%- include('../partials/painel-topo') %>
+
+<h1>Menu</h1>
+<div class="lista-cards">
+  <a class="cartao" href="/painel/pedidos">Pedidos</a>
+  <a class="cartao" href="/painel/clientes">Clientes</a>
+  <a class="cartao" href="/painel/produtos">Produtos e serviços</a>
+  <% if (usuario.perfil === 'admin') { %>
+    <a class="cartao" href="/painel/estoque">Estoque</a>
+    <a class="cartao" href="/painel/funcionarios">Funcionários</a>
+  <% } %>
+</div>
+
+<div class="cartao" style="margin-top: 20px">
+  <strong><%= usuario.nome %></strong> · <%= PERFIS[usuario.perfil] %>
+  <form action="/logout" method="post" style="margin-top: 10px"><button class="btn btn-claro">Sair</button></form>
+</div>
+
+<%- include('../partials/painel-fim') %>

@@ -1,0 +1,54 @@
+<%- include('../../partials/painel-topo') %>
+
+<div class="pagina-titulo">
+  <h1>Novo pedido</h1>
+  <a href="/painel/pedidos">&larr; Pedidos</a>
+</div>
+
+<form class="cartao" action="/painel/pedidos" method="post" style="max-width: 820px">
+  <% if (solicitacao) { %>
+    <input type="hidden" name="solicitacao_id" value="<%= solicitacao.id %>">
+    <p class="aviso aviso-sucesso">Gerando pedido a partir da solicitação <strong><%= solicitacao.protocolo %></strong>.</p>
+  <% } %>
+
+  <div class="campo">
+    <label for="cliente_id">Cliente *</label>
+    <select id="cliente_id" name="cliente_id" required data-cliente-endereco>
+      <option value="">Selecione...</option>
+      <% clientes.forEach((c) => {
+           const endereco = [c.endereco, c.cidade, c.estado].filter(Boolean).join(', '); %>
+        <option value="<%= c.id %>" data-endereco="<%= endereco %>"
+          <%= solicitacao && solicitacao.cliente_id == c.id ? 'selected' : '' %>><%= c.nome %> (<%= c.email %>)</option>
+      <% }) %>
+    </select>
+  </div>
+
+  <%# Itens: o JS (site.js) adiciona/remove linhas %>
+  <label>Itens *</label>
+  <div data-itens>
+    <div class="item-linha">
+      <select name="produto_id" required>
+        <option value="">Produto ou serviço...</option>
+        <% produtos.forEach((p) => { %>
+          <option value="<%= p.id %>" <%= solicitacao && solicitacao.produto_id == p.id ? 'selected' : '' %>>
+            <%= p.nome %> — <%= moeda(p.preco) %><%= p.tipo === 'produto' ? ' (estoque: ' + p.quantidade_estoque + ')' : '' %>
+          </option>
+        <% }) %>
+      </select>
+      <input name="quantidade" type="number" min="1" value="1" required aria-label="Quantidade">
+      <button class="btn btn-claro" type="button" data-remover-item aria-label="Remover item">&times;</button>
+    </div>
+  </div>
+  <button class="btn btn-claro btn-pequeno" type="button" data-adicionar-item>+ Adicionar item</button>
+  <p class="ajuda">O preço é o do catálogo no momento do pedido. Produtos saem do estoque automaticamente.</p>
+
+  <div class="linha-campos" style="margin-top: 14px">
+    <div class="campo"><label for="endereco_entrega">Endereço de entrega</label><input id="endereco_entrega" name="endereco_entrega"></div>
+    <div class="campo"><label for="previsao_entrega">Previsão de entrega</label><input id="previsao_entrega" name="previsao_entrega" type="date"></div>
+  </div>
+  <div class="campo"><label for="observacoes">Observações</label><textarea id="observacoes" name="observacoes"></textarea></div>
+
+  <button class="btn" type="submit">Criar pedido</button>
+</form>
+
+<%- include('../../partials/painel-fim') %>

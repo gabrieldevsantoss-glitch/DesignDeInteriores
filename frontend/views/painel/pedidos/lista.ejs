@@ -1,0 +1,34 @@
+<%- include('../../partials/painel-topo') %>
+
+<div class="pagina-titulo">
+  <h1>Pedidos</h1>
+  <a class="btn" href="/painel/pedidos/novo">Novo pedido</a>
+</div>
+
+<nav class="abas">
+  <a href="/painel/pedidos" class="<%= !query.status ? 'ativo' : '' %>">Todos</a>
+  <% ['confirmado', 'em_preparacao', 'em_transporte', 'concluido', 'necessita_acompanhamento'].forEach((valor) => { %>
+    <a href="/painel/pedidos?status=<%= valor %>" class="<%= query.status === valor ? 'ativo' : '' %>"><%= STATUS[valor] %></a>
+  <% }) %>
+</nav>
+
+<div class="cartao tabela-wrap" style="padding: 0">
+  <table>
+    <thead><tr><th>#</th><th>Cliente</th><th>Data</th><th>Previsão</th><th>Total</th><th>Status</th></tr></thead>
+    <tbody>
+      <% if (!pedidos.length) { %><tr><td colspan="6" class="vazio">Nenhum pedido encontrado.</td></tr><% } %>
+      <% pedidos.forEach((p) => { %>
+        <tr>
+          <td><a href="/painel/pedidos/<%= p.id %>">#<%= p.id %></a></td>
+          <td><a href="/painel/clientes/<%= p.cliente.id %>"><%= p.cliente.nome %></a></td>
+          <td><%= data(p.created_at) %></td>
+          <td><%= data(p.previsao_entrega) %></td>
+          <td><%= moeda(p.valor_total) %></td>
+          <td><%- include('../../partials/status', { valor: p.status }) %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../../partials/painel-fim') %>

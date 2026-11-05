@@ -1,0 +1,15 @@
+<%# Fecha o painel + barra inferior do celular (inicio / concluidos / config) %>
+    </main>
+  </div>
+</div>
+
+<nav class="painel-inferior">
+  <a href="/painel" class="<%= caminho === '/' ? 'ativo' : '' %>"><%- include('icone', { nome: 'casa' }) %>início</a>
+  <a href="/painel/solicitacoes" class="<%= caminho.startsWith('/solicitacoes') && !query.status ? 'ativo' : '' %>"><%- include('icone', { nome: 'lista' }) %>solicitações</a>
+  <a href="/painel/solicitacoes?status=concluido" class="<%= query.status === 'concluido' ? 'ativo' : '' %>"><%- include('icone', { nome: 'check' }) %>concluídos</a>
+  <a href="/painel/mais" class="<%= caminho === '/mais' ? 'ativo' : '' %>"><%- include('icone', { nome: 'engrenagem' }) %>mais</a>
+</nav>
+
+<script src="/js/site.js"></script>
+</body>
+</html>

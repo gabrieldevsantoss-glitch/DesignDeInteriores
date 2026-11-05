@@ -1,0 +1,55 @@
+<%- include('../partials/site-topo') %>
+<main class="pagina">
+  <div class="container">
+    <div class="pagina-titulo">
+      <h1>Olá, <%= usuario.nome.split(' ')[0] %>!</h1>
+      <div class="acoes">
+        <a class="btn" href="/minha-conta/solicitacoes/nova">Nova solicitação</a>
+        <a class="btn btn-claro" href="/minha-conta/perfil">Meus dados</a>
+        <form action="/logout" method="post"><button class="btn btn-claro">Sair</button></form>
+      </div>
+    </div>
+    <%- include('../partials/flash') %>
+
+    <div class="grade-2">
+      <%# Status das solicitacoes (caso de uso "consultar status da solicitacao") %>
+      <section class="cartao">
+        <h2>Minhas solicitações</h2>
+        <% if (!solicitacoes.length) { %>
+          <p class="vazio">Você ainda não enviou nenhuma solicitação.</p>
+        <% } else { %>
+          <div class="lista-cards">
+            <% solicitacoes.forEach((s) => { %>
+              <%- include('../partials/card-atendimento', {
+                href: '/minha-conta/solicitacoes/' + s.id,
+                nome: s.protocolo + ' · ' + data(s.created_at),
+                status: s.status,
+                assunto: ESPACOS[s.espaco] + (s.produto ? ' — ' + s.produto.nome : '') + ': ' + s.descricao,
+              }) %>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+      <%# Historico de pedidos (RF 14) %>
+      <section class="cartao">
+        <h2>Histórico de pedidos</h2>
+        <% if (!pedidos.length) { %>
+          <p class="vazio">Nenhum pedido ainda.</p>
+        <% } else { %>
+          <div class="lista-cards">
+            <% pedidos.forEach((p) => { %>
+              <%- include('../partials/card-atendimento', {
+                href: '/minha-conta/pedidos/' + p.id,
+                nome: 'Pedido #' + p.id + ' · ' + data(p.created_at),
+                status: p.status,
+                assunto: moeda(p.valor_total),
+              }) %>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </div>
+  </div>
+</main>
+<%- include('../partials/site-fim') %>
