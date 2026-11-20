@@ -1,74 +1,60 @@
-/**
- * ProdutoController - catalogo de produtos e servicos (RF 02).
- * Listagem liberada para todos os funcionarios; cadastro/edicao so para admin.
- */
-const { Op } = require('sequelize');
-const { Produto, MovimentacaoEstoque, sequelize } = require('../model');
-const { erroPublico } = require('../middleware/erros');
+// Produtos: listar (site) e cadastrar/excluir (administrador)
+import { Produto } from '../model/index.js';
 
-const CAMPOS = ['nome', 'descricao', 'tipo', 'categoria', 'preco', 'estoque_minimo'];
-const extrairDados = (body) => ({
-  ...Object.fromEntries(CAMPOS.map((c) => [c, body[c] === '' ? null : body[c]])),
-  ativo: body.ativo === 'on',
-});
-
-/** GET /painel/produtos?busca=&tipo= */
-async function listar(req, res) {
-  const { busca, tipo } = req.query;
-  const where = {};
-  if (busca) where.nome = { [Op.iLike]: `%${busca}%` };
-  if (tipo) where.tipo = tipo;
-
-  const produtos = await Produto.findAll({ where, order: [['nome', 'ASC']] });
-  res.render('painel/produtos/lista', { titulo: 'Produtos e serviços', produtos });
-}
-
-/** GET /painel/produtos/novo */
-function formNovo(req, res) {
-  res.render('painel/produtos/form', { titulo: 'Novo produto', produto: { ativo: true, tipo: 'produto' } });
-}
-
-/**
- * POST /painel/produtos
- * O estoque inicial e lancado como uma movimentacao de entrada,
- * assim o historico de estoque fica completo desde o inicio.
- */
-async function criar(req, res) {
-  const estoqueInicial = Number(req.body.estoque_inicial || 0);
-
-  const produto = await sequelize.transaction(async (transaction) => {
-    const novo = await Produto.create(extrairDados(req.body), { transaction });
-    if (estoqueInicial > 0) {
-      await MovimentacaoEstoque.registrar({
-        produto_id: novo.id,
-        tipo: 'entrada',
-        quantidade: estoqueInicial,
-        motivo: 'Estoque inicial',
-        funcionario_id: req.usuario.id,
-      }, transaction);
+// GET /api/produtos   -> produtos ativos (aparecem no site)
+export async function listar(req, res) {
+    try {
+        const produtos = await Produto.findAll({
+            where: { ativo: true },
+            order: [['nome', 'ASC']]
+        });
+        res.status(200).json(produtos);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
     }
-    return novo;
-  });
-
-  res.flash('sucesso', `"${produto.nome}" cadastrado.`);
-  res.redirect('/painel/produtos');
 }
 
-/** GET /painel/produtos/:id/editar */
-async function formEditar(req, res) {
-  const produto = await Produto.findByPk(req.params.id);
-  if (!produto) throw erroPublico('Produto não encontrado.', 404);
-  res.render('painel/produtos/form', { titulo: 'Editar produto', produto });
+// POST /api/produtos   { nome, descricao, tipo, categoria, preco, quantidade_estoque }
+export async function cadastrar(req, res) {
+    try {
+        const { nome, descricao, tipo, categoria, preco, quantidade_estoque } = req.body;
+
+        if (!nome) {
+            return res.status(400).json({ message: 'Informe o nome do produto' });
+        }
+        if (Number(preco) < 0) {
+            return res.status(400).json({ message: 'O preço não pode ser negativo' });
+        }
+
+        const produto = await Produto.create({
+            nome: nome,
+            descricao: descricao,
+            tipo: tipo,
+            categoria: categoria,
+            preco: preco || 0,
+            quantidade_estoque: quantidade_estoque || 0
+        });
+
+        console.log(`Produto cadastrado: ${nome}`);
+        res.status(201).json(produto);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 }
 
-/** POST /painel/produtos/:id - o saldo so muda pela tela de estoque */
-async function atualizar(req, res) {
-  const produto = await Produto.findByPk(req.params.id);
-  if (!produto) throw erroPublico('Produto não encontrado.', 404);
+// DELETE /api/produtos/:id   -> tira o produto do site (nao apaga do banco)
+export async function excluir(req, res) {
+    try {
+        const produto = await Produto.findByPk(req.params.id);
+        if (!produto) {
+            return res.status(404).json({ message: 'Produto não encontrado' });
+        }
 
-  await produto.update(extrairDados(req.body));
-  res.flash('sucesso', 'Produto atualizado.');
-  res.redirect('/painel/produtos');
+        produto.ativo = false;
+        await produto.save();
+
+        res.status(200).json({ message: 'Produto removido!' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 }
-
-module.exports = { listar, formNovo, criar, formEditar, atualizar };

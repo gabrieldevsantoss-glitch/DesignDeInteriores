@@ -1,24 +1,16 @@
-/**
- * Conexao com o PostgreSQL do Supabase via Sequelize.
- * A string de conexao vem do .env (DATABASE_URL - "Session pooler").
- */
-const { Sequelize } = require('sequelize');
+// Conexao com o banco de dados PostgreSQL do Supabase usando o Sequelize
+import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: 'postgres',
-  logging: false,
-  // O Supabase exige conexao criptografada
-  dialectOptions: {
-    ssl: { require: true, rejectUnauthorized: false },
-  },
-  // Padroes para todos os models: colunas em snake_case
-  // (created_at / updated_at) iguais as do schema.sql
-  define: {
-    underscored: true,
-    freezeTableName: true,
-    timestamps: true,
-  },
-  pool: { max: 5, min: 0, idle: 10000 },
+    dialect: 'postgres',
+    logging: false, // nao mostra os comandos SQL no terminal
+    dialectOptions: {
+        ssl: { require: true, rejectUnauthorized: false } // o Supabase exige SSL
+    },
+    define: {
+        underscored: true,      // colunas created_at / updated_at
+        freezeTableName: true   // usa o nome da tabela exatamente como escrito
+    }
 });
 
-module.exports = sequelize;
+export default sequelize;

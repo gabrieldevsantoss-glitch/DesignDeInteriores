@@ -1,35 +1,31 @@
-/**
- * Cria o primeiro administrador do sistema.
- *
- * Uso:
- *   npm run criar-admin -- "Nome do Admin" email@empresa.com senha123
- */
-require('dotenv').config({ quiet: true });
-const { supabaseAdmin } = require('../config/supabase');
-const { Funcionario, sequelize } = require('../model');
+// Cria um administrador do sistema.
+// Uso: npm run criar-admin -- "Nome do Admin" email@empresa.com senha123
+import '../config/env.js';
+import { supabaseAdmin } from '../config/supabase.js';
+import { Funcionario } from '../model/index.js';
+import sequelize from '../model/connect.js';
 
-async function main() {
-  const [nome, email, senha] = process.argv.slice(2);
-  if (!nome || !email || !senha) {
+const nome = process.argv[2];
+const email = process.argv[3];
+const senha = process.argv[4];
+
+if (!nome || !email || !senha) {
     console.log('Uso: npm run criar-admin -- "Nome" email@empresa.com senha');
     process.exit(1);
-  }
-
-  const { data, error } = await supabaseAdmin.auth.admin.createUser({
-    email,
-    password: senha,
-    email_confirm: true,
-    user_metadata: { nome, tipo: 'funcionario' },
-  });
-  if (error) throw new Error(error.message);
-
-  await Funcionario.create({ auth_id: data.user.id, nome, email, perfil: 'admin' });
-  console.log(`Administrador ${email} criado. Acesse /login.`);
 }
 
-main()
-  .catch((err) => {
-    console.error('Erro:', err.message);
-    process.exitCode = 1;
-  })
-  .finally(() => sequelize.close());
+try {
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+        email: email,
+        password: senha,
+        email_confirm: true
+    });
+    if (error) throw new Error(error.message);
+
+    await Funcionario.create({ auth_id: data.user.id, nome: nome, email: email, perfil: 'admin' });
+    console.log(`Administrador ${email} criado! Entre pelo /login.html`);
+} catch (error) {
+    console.log('Erro:', error.message);
+}
+
+await sequelize.close();
